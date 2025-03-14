@@ -1,141 +1,108 @@
 import os
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    CallbackQueryHandler,
-    ContextTypes,
-    filters,
-    ChatMemberHandler,
-)
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, CallbackContext
+from flask import Flask, jsonify
 
-# Get environment variables
-TOKEN = os.environ.get('BOT_TOKEN')
-YOUR_ADMIN_ID = os.environ.get('YOUR_ADMIN_ID')  # يجب أن يكون رقم معرفك وليس اسم المستخدم
-CHANNEL_ID = os.environ.get('CHANNEL_ID')  # تأكد أن هذا هو المعرف الرقمي للقناة أو اسم المستخدم مع @
+# تحميل متغيرات البيئة
+load_dotenv()
+TOKEN = os.getenv('BOT_TOKEN')
+YOUR_ADMIN_ID = os.getenv('YOUR_ADMIN_ID')
+GROUP_ID = os.getenv('GROUP_ID')
 
-# رسالة الترحيب الثابتة (يمكن استخدامها في أماكن متعددة)
-WELCOME_MESSAGE_TEXT = (
-    "🌟 مرحباً بك في قناتنا! 🌟\n"
-    "للانضمام إلى القناة، يرجى الإجابة على بعض الأسئلة.\n"
-    "اضغط على الزر أدناه للبدء."
-)
+WELCOME_MESSAGE_TEXT = """
+**Welcome to our channel!** To join the channel, please answer a few questions.
+Click the button below to get started ✅
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if 'q1' not in context.user_data:
-        context.user_data['q1'] = None
+----------------------------
 
-    keyboard = [[InlineKeyboardButton("ابدأ", callback_data='start_questions')]]
+✨ **مرحباً بك في قناتنا!** ✨
+
+للانضمام إلى القناة، يرجى الإجابة على بعض الأسئلة.
+اضغط على الزر أدناه للبدء...
+"""
+
+user_data = {}
+muted_users = set()
+
+# إنشاء خادم HTTP باستخدام Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return 'Bot is running!'
+
+@app.route('/status')
+def status():
+    return jsonify(status='active', timestamp=str(datetime.now()))
+
+if __name__ == '__main__':
+    app.run(port=os.getenv('PORT', 3000))
+
+# تعريف وظيفة لمعالجة الأعضاء الجدد
+def new_chat_members(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+
+    if str(chat_id) == GROUP_ID:
+        for user in update.message.new_chat_members:
+            welcome_message = f"**مرحباً بك، {user.first_name}!** \n\nيسعدنا انضمانك إلى مجموعتنا. نأمل أن تستفيد من محتوى المجموعة وتشاركنا بأفكارك!"
+
+            context.bot.send_message(chat_id, welcome_message, parse_mode='Markdown')
+
+# تعريف وظيفة لبدء الاستبيان
+def start(update: Update, context: CallbackContext):
+    chat_id = update.message.chat_id
+    user_data[chat_id] = {'q1': None, 'q2': None, 'q3': None, 'q4': None, 'q5': None, 'q6': None}
+
+    keyboard = [[InlineKeyboardButton('start', callback_data='start_questions')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(WELCOME_MESSAGE_TEXT, reply_markup=reply_markup)
+    update.message.reply_text(WELCOME_MESSAGE_TEXT, reply_markup=reply_markup, parse_mode='Markdown')
 
-async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# تعريف وظيفة لمعالجة الأزرار
+def button(update: Update, context: CallbackContext):
     query = update.callback_query
-    await query.answer()
+    chat_id = query.message.chat_id
+    data = query.data
 
-    if query.data == 'start_questions':
-        keyboard = [[InlineKeyboardButton("نعم", callback_data='yes'), InlineKeyboardButton("لا", callback_data='no')]]
+    query.answer()
+
+    if data == 'start_questions':
+        keyboard = [[InlineKeyboardButton('yes', callback_data='yes'), InlineKeyboardButton('no', callback_data='no')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text('✅ هل أنت على استعداد للالتزام بقواعد القناة؟', reply_markup=reply_markup)
-
-    elif query.data == 'yes':
-        context.user_data['q1'] = True
-        keyboard = [[InlineKeyboardButton("نعم", callback_data='yes2'), InlineKeyboardButton("لا", callback_data='no2')]]
+        query.edit_message_text('✅ **هل أنت على استعداد للالتزام بقواعد القناة؟** ✅\n\nAre you prepared to follow the channel guidelines?', reply_markup=reply_markup, parse_mode='Markdown')
+    elif data == 'yes':
+        user_data[chat_id]['q1'] = True
+        keyboard = [[InlineKeyboardButton('yes', callback_data='yes2'), InlineKeyboardButton('no', callback_data='no2')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text('📚 هل أنت متفرغ للمشاركة الفعالة في القناة؟', reply_markup=reply_markup)
+        query.edit_message_text('Are you available to actively participate in the channel?\n\n**هل أنت متفرغ للمشاركة الفعالة في القناة؟**', reply_markup=reply_markup, parse_mode='Markdown')
+    elif data in ['no', 'no2']:
+        query.edit_message_text('❌ **شكراً لاهتمامك.**', parse_mode='Markdown')
+    elif data == 'yes2':
+        user_data[chat_id]['q2'] = True
+        query.edit_message_text('**ما هو هدفك من الانضمام إلى هذه القناة؟** (يرجى الرد برسالة نصية)\n\nWhat is your goal for joining this channel? (Please reply with a text message)', parse_mode='Markdown')
 
-    elif query.data == 'no' or query.data == 'no2':
-        await query.edit_message_text('❌ شكراً لاهتمامك.')
-
-    elif query.data == 'yes2':
-        context.user_data['q2'] = True
-        await query.edit_message_text('📝 ما هو هدفك من الانضمام إلى هذه القناة؟ (يرجى الرد برسالة نصية)')
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if 'q1' not in context.user_data or not context.user_data['q1']:
-        await update.message.reply_text('يرجى استخدام الأمر /start للبدء.')
-        return
-
-    if 'q2' not in context.user_data or not context.user_data['q2']:
-        await update.message.reply_text('يرجى متابعة الأسئلة من خلال الأزرار.')
-        return
-
-    if 'q3' not in context.user_data:
-        context.user_data['q3'] = update.message.text
-        if len(context.user_data['q3'].split()) >= 10:
-            await update.message.reply_text('🌍 ما هي لغتك الأم؟')
-        else:
-            await update.message.reply_text('❌ يجب أن يكون هدفك من الانضمام أكثر تفصيلاً (10 كلمات على الأقل). الرجاء المحاولة مرة أخرى.')
-            context.user_data['q3'] = None
-
-    elif 'q4' not in context.user_data:
-        context.user_data['q4'] = update.message.text
-        await update.message.reply_text('✅ شكراً لإجاباتك! سيتم الآن محاولة إضافتك تلقائياً إلى القناة.')
-
-        if CHANNEL_ID:
-            try:
-                # محاولة الإضافة التلقائية للقناة
-                await context.bot.add_chat_member(chat_id=CHANNEL_ID, user_id=update.message.from_user.id)
-                await update.message.reply_text('🎉 تم إضافتك بنجاح إلى القناة! مرحباً بك!')
-
-            except Exception as e:
-                # في حالة الفشل، يتم إرسال الطلب إلى الأدمن
-                error_message = f"Error adding user to channel: {e}"
-                print(error_message)
-
-                if YOUR_ADMIN_ID:
-                    admin_message = (
-                        f"🔔 طلب انضمام جديد لم يتم إضافته تلقائيًا:\n"
-                        f"- المستخدم: {update.message.from_user.first_name} (@{update.message.from_user.username})\n"
-                        f"- هدف الانضمام: {context.user_data['q3']}\n"
-                        f"- اللغة الأم: {context.user_data['q4']}\n"
-                        f"- معرف المستخدم: {update.message.from_user.id}\n\n"
-                        f"⚠️ لم يتمكن البوت من إضافته للقناة تلقائيًا. يرجى المراجعة."
-                    )
-                    try:
-                        await context.bot.send_message(chat_id=int(YOUR_ADMIN_ID), text=admin_message)
-                        await update.message.reply_text(
-                            '⚠️ لم نتمكن من إضافتك تلقائياً. تم إرسال طلبك إلى الأدمن وسيتم مراجعته قريباً.'
-                        )
-                    except Exception as admin_error:
-                        print(f"Error sending message to admin: {admin_error}")
-
-# إضافة ترحيب تلقائي عند انضمام أي عضو
-async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("welcome_new_member function called!")  # طباعة للتأكد من استدعاء الدالة
-    if update.chat_member.new_chat_member:
-        user = update.chat_member.new_chat_member.user
-        welcome_message = f"🌟 مرحباً بك، {user.full_name}! 🎉\nيسعدنا انضمامك إلى قناتنا. نأمل أن تستمتع بمحتوى القناة. إذا كان لديك أي استفسار، لا تتردد في التواصل!"
-        try:
-            await context.bot.send_message(chat_id=update.chat_member.chat.id, text=welcome_message)
-        except Exception as e:
-            print(f"Error sending welcome message: {e}") # طباعة الخطأ في حالة حدوث مشكلة
-
+# تعريف وظيفة لمعالجة الرسائل النصية
+def handle_message(update: Update, context: CallbackContext):
+    # يمكنك إضافة معالجة الرسائل النصية هنا
+    pass
 
 def main():
     if not TOKEN:
-        print("Error: BOT_TOKEN environment variable is not set.")
+        print('Error: BOT_TOKEN environment variable is not set.')
         return
 
-    application = ApplicationBuilder().token(TOKEN).build()
+    updater = Updater(TOKEN)
+    dispatcher = updater.dispatcher
 
-    # إضافة معالج الترحيب التلقائي
-    application.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
+    # إضافة المعالجات
+    dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_chat_members))
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CallbackQueryHandler(button))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(button))
-    # تعطيل معالج الرسائل النصية العام لمنع الرد على كل رسالة
-    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print('Bot is starting...')
+    updater.start_polling()
+    updater.idle()
 
-    # إزالة معالج اختبار الوصول الذي تم إضافته مؤخراً
-    # application.add_handler(MessageHandler(
-    #     filters.TEXT & filters.GroupChat & (filters.MENTION_ME | filters.Regex(r".*اختبار البوت.*")),
-    #     test_bot_access
-    # ))
-
-    print("Bot is starting...")
-    application.run_polling()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
