@@ -185,8 +185,10 @@ def main():
     app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
 
     print("Bot is running...")
-    PORT = int(os.environ.get("PORT", 8080))  # استخدم المنفذ 8080 أو أي منفذ آخر
-    app.run_polling(port=PORT)
-
-if __name__ == "__main__":
-    main()
+    PORT = int(os.environ.get("PORT", 8080))  # استخدم المنفذ 8080
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TOKEN,
+        webhook_url=f"https://join-bot.onrender.com/{TOKEN}"
+    )
