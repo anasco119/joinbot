@@ -190,5 +190,8 @@ def main():
         listen="0.0.0.0",
         port=PORT,
         url_path=TOKEN,
-        webhook_url=f"https://join-bot.onrender.com/{TOKEN}"
+        webhook_url=f"https://your-render-app-url.onrender.com/{TOKEN}"
     )
+
+if __name__ == "__main__":
+    main()
