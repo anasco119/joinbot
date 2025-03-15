@@ -183,6 +183,6 @@ def main():
 
     print("Bot is running...")
     app.run_polling()
-
 if __name__ == "__main__":
-    main()
+    PORT = int(os.environ.get("PORT", 8080))  # استخدم المنفذ 8080 أو أي منفذ آخر
+    app.run_polling(port=PORT)
