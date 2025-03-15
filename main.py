@@ -139,9 +139,12 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(2)  # تأخير لمدة ثانيتين
 
                 # إرسال رابط الدعوة إلى المستخدم
-                invite_link = await context.bot.create_chat_invite_link(chat_id=CHANNEL_ID)
+                invite_link = "https://t.me/EnglishConvs"
                 await update.message.reply_text(
-                    f"⚠️ يبدو أنك لا تملك username. يرجى استخدام الرابط التالي للانضمام إلى القناة:\n\n{invite_link.invite_link}"
+                    f"✨ **مرحباً بك في قناتنا!** ✨\n\n"
+                    f"للانضمام إلى القناة، يرجى استخدام الرابط التالي:\n\n"
+                    f"{invite_link}\n\n"
+                    f"شكرًا لاهتمامك! 😊"
                 )
 
         # إرسال معلومات المستخدم إلى الأدمن في كل الحالات
@@ -189,7 +192,6 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r'^(عربي|English)$'), handle_language))
     app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
 
-    
     print("Bot is running...")
     PORT = int(os.environ.get("PORT", 8080))  # استخدم المنفذ 8080
     app.run_webhook(
