@@ -1,5 +1,6 @@
 import os
 import re
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -134,7 +135,9 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("✅ You have been successfully added to the channel! ✅\n\n✅ تمت إضافتك للقناة بنجاح! ✅")
             except Exception as e:
                 print(f"Error adding user to channel: {e}")
-                await update.message.reply_text("⏳ جاري معالجة طلبك، شكرًا لتفهمك! 🌟\n\nتم إبلاغ الأدمن لإضافتك إلى القناة.")
+                await update.message.reply_text("⏳ جاري معالجة طلبك، شكرًا لتفهمك! 🌟")
+                await asyncio.sleep(2)  # تأخير لمدة ثانيتين
+                await update.message.reply_text("تم إبلاغ الأدمن لإضافتك إلى القناة.")
 
         # إرسال معلومات المستخدم إلى الأدمن حتى في حالة الانضمام التلقائي
         if YOUR_ADMIN_ID:
@@ -182,7 +185,8 @@ def main():
     app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
 
     print("Bot is running...")
-    app.run_polling()
-if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 8080))  # استخدم المنفذ 8080 أو أي منفذ آخر
     app.run_polling(port=PORT)
+
+if __name__ == "__main__":
+    main()
