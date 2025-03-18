@@ -52,6 +52,34 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == "start_questions":
         context.user_data['q2'] = True
         await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
+    elif query.data == "yes_rules":
+        context.user_data['rules_agreement'] = "نعم | Yes"
+        context.user_data['q6'] = True
+        await query.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        # إضافة أزرار نعم/لا للمشاركة الإيجابية
+        keyboard = [
+            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("اختر:", reply_markup=reply_markup)
+    elif query.data == "no_rules":
+        context.user_data['rules_agreement'] = "لا | No"
+        context.user_data['q6'] = True
+        await query.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        # إضافة أزرار نعم/لا للمشاركة الإيجابية
+        keyboard = [
+            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("اختر:", reply_markup=reply_markup)
+    elif query.data == "yes_participation":
+        context.user_data['positive_participation'] = "نعم | Yes"
+        await handle_language(update, context)
+    elif query.data == "no_participation":
+        context.user_data['positive_participation'] = "لا | No"
+        await handle_language(update, context)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.message.chat.id)
@@ -145,7 +173,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             genie_users.add(user_id)
 
-    elif chat_id != GROUP_ID:
+        elif chat_id != GROUP_ID:
         # الرسائل الخاصة
         if not context.user_data.get('q2'):
             await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️\nPlease press /start to follow the instructions.")
@@ -158,14 +186,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif not context.user_data.get('q5'):
             context.user_data['lang'] = message_text  # حفظ اللغة
             context.user_data['q5'] = True
-            await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules? (نعم|yes/لا|no)")
+            # إضافة أزرار نعم/لا للالتزام بالقواعد
+            keyboard = [
+                [InlineKeyboardButton("نعم | Yes", callback_data="yes_rules")],
+                [InlineKeyboardButton("لا | No", callback_data="no_rules")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules?", reply_markup=reply_markup)
         elif not context.user_data.get('q6'):
-            context.user_data['rules_agreement'] = message_text  # حفظ الالتزام بالقواعد
-            context.user_data['q6'] = True
-            await update.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel? (نعم|yes/لا|no)")
+            # الانتظار حتى يتم الرد على السؤال السابق بالأزرار
+            return
         else:
-            context.user_data['positive_participation'] = message_text  # حفظ المشاركة الإيجابية
-            await handle_language(update, context)  # الانتقال إلى الخطوة التالية
+            # الانتظار حتى يتم الرد على السؤال الأخير بالأزرار
+            return
 
 async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get('q6'):
@@ -173,7 +206,7 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # إرسال رسالة المعالجة
     processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
-    
+
     # إضافة تأثير النقاط المتحركة
     for _ in range(3):  # كرر العملية 3 مرات
         await asyncio.sleep(1)  # تأخير 1 ثانية
@@ -181,13 +214,16 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(1)
         await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها..")  # تعديل الرسالة
         await asyncio.sleep(1)
-        await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها...") # تعديل الرسالة
-        await asyncio.sleep(1)  
-        await processing_msg.edit_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
-        await asyncio.sleep(3)
+        await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")  # تعديل الرسالة
+
     # حذف رسالة المعالجة بعد الانتهاء
-    await processing_msg.delete()
     await asyncio.sleep(1)
+    await processing_msg.edit_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
+
+    # إرسال الرسالة التالية
+    await asyncio.sleep(3)
+    await update.message.reply_text("⏳ بضع ثواني فقط ...\n⌛ Redirecting you; please be patient💤...")
+    await asyncio.sleep(3)
     try:
         if CHANNEL_ID:
             try:
