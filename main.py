@@ -202,6 +202,7 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"🔗 يرجى الانضمام للقناة من خلال الرابط التالي:\n{invite_link}\n\nنرحب بك! 😊"
                 )
 
+                # إرسال جميع الإجابات إلى الأدمن
         if YOUR_ADMIN_ID:
             await context.bot.send_message(
                 chat_id=YOUR_ADMIN_ID,
@@ -211,7 +212,9 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"اسم المستخدم: @{update.message.from_user.username}\n"
                     f"معرف المستخدم: {update.message.from_user.id}\n"
                     f"الهدف: {context.user_data['q3']}\n"
-                    f"اللغة: {context.user_data['lang']}"
+                    f"اللغة: {context.user_data['lang']}\n"
+                    f"هل يلتزم بالقواعد؟: {context.user_data['rules_agreement']}\n"
+                    f"هل سيشارك مشاركة إيجابية؟: {context.user_data['positive_participation']}    
                 )
             )
     except Exception as e:
