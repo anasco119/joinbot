@@ -183,6 +183,6 @@ def main():
     print("Bot is running...")
     PORT = int(os.environ.get("PORT", 8080))
     app.run_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-
+webhook_url=f"https://joinbot-7mw7.onrender.com/{TOKEN}")
 if __name__ == "__main__":
     main()
