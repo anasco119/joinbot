@@ -14,7 +14,53 @@ from telegram.ext import (
 
 # تهيئة المتغيرات من البيئة
 TOKEN = os.environ.get('BOT_TOKEN')
-YOUR_ADMIN_ID = os.environ.get('YOUR_ADMIN_ID')
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = str(update.message.chat.id)
+    user_id = update.message.from_user.id
+    message_text = update.message.text
+
+    # التأكد من أن الرسائل تأتي من المجموعة المحددة
+    if chat_id == GROUP_ID:
+        # منع الروابط
+        if "http://" in message_text or "https://" in message_text:
+            await update.message.reply_text("❌ الروابط غير مسموحة في هذه المجموعة. ❌")
+            await update.message.delete()
+            return
+
+        # منع الكلمات المسيئة
+        for pattern in BAD_WORDS_PATTERNS:
+            if re.search(pattern, message_text, re.IGNORECASE):
+                await update.message.reply_text("❌ اللغة غير اللائقة غير مسموحة. ❌")
+                await update.message.delete()
+                return
+
+        # منع ذكر المعرفات الخارجية 
+        if re.search(r"@\w+", message_text) and user_id != YOUR_ADMIN_ID:
+            await update.message.reply_text("❌ لا يُسمح بذكر المعرفات الخارجية في هذه المجموعة. ❌")
+            await update.message.delete()
+            return
+
+        # منع استدعاء البوت Genie أكثر من مرة
+        if "Genie" in message_text or "@AIChatGeniebot" in message_text:
+            if user_id in genie_users and str(user_id) != YOUR_ADMIN_ID:
+                await update.message.reply_text("❌ يمكنك استدعاء Genie مرة واحدة فقط. ❌")
+                await update.message.delete()
+                return
+            genie_users.add(user_id)
+
+    elif chat_id != GROUP_ID:
+        # الرسائل الخاصة
+        if not context.user_data.get('q2'):
+            await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start ⚠️")
+            return
+
+        # التحقق من وجود الهدف
+        if not context.user_data.get('q3'):
+            context.user_data['q3'] = message_text  # حفظ الهدف
+            context.user_data['q4'] = True
+            await update.message.reply_text("ما هي لغتك الأم؟")
+        else:
+            await handle_language(update, context)YOUR_ADMIN_ID = os.environ.get('YOUR_ADMIN_ID')
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 GROUP_ID = os.environ.get('GROUP_ID')
 
@@ -39,83 +85,7 @@ BAD_WORDS_PATTERNS = [
 # قائمة بالمستخدمين الذين استدعوا البوت Genie
 genie_users = set()
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # التحقق من أن الرسالة ليست في مجموعة
-    if update.message.chat.type != "private":
-        await update.message.reply_text("⚠️ Please use /start in a private chat with the bot. ⚠️\n\n⚠️ يرجى استخدام /start في محادثة خاصة مع البوت. ⚠️")
-        return
 
-    context.user_data.clear()
-    keyboard = [[InlineKeyboardButton("Start | ابدأ", callback_data='start_questions')]]
-    await update.message.reply_text(WELCOME_MESSAGE_TEXT, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    if query.data == 'start_questions':
-        keyboard = [
-            [InlineKeyboardButton("Yes | نعم", callback_data='yes'), 
-             InlineKeyboardButton("No | لا", callback_data='no')]
-        ]
-        await query.edit_message_text("✅ Are you prepared to follow the channel guidelines? ✅\n\n✅ هل أنت على استعداد للالتزام بقواعد القناة؟ ✅", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    elif query.data == 'yes':
-        keyboard = [
-            [InlineKeyboardButton("Yes | نعم", callback_data='yes2'), 
-             InlineKeyboardButton("No | لا", callback_data='no2')]
-        ]
-        await query.edit_message_text(" Are you available to actively participate in the channel? \n\n هل أنت متفرغ للمشاركة الفعالة في القناة؟ ", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    elif query.data in ('no', 'no2'):
-        await query.edit_message_text("❌ Thank you for your interest. ❌\n\n❌ شكراً لاهتمامك. ❌")
-        context.user_data.clear()
-
-    elif query.data == 'yes2':
-        await query.edit_message_text(" What is your goal for joining this channel? (Please reply with a text message) \n\n ما هو هدفك من الانضمام إلى هذه القناة؟ (يرجى الرد برسالة نصية) ")
-        context.user_data['q2'] = True
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # التحقق من أن الرسالة ليست في المجموعة
-    if str(update.message.chat.id) == GROUP_ID:
-        return
-
-    # منع الروابط
-    if "http://" in update.message.text or "https://" in update.message.text:
-        await update.message.reply_text("❌ Links are not allowed in this group. ❌\n\n❌ الروابط غير مسموحة في هذه المجموعة. ❌")
-        await update.message.delete()
-        return
-
-    # منع الكلمات النابئة باستخدام regex
-    for pattern in BAD_WORDS_PATTERNS:
-        if re.search(pattern, update.message.text, re.IGNORECASE):
-            await update.message.reply_text("❌ Inappropriate language is not allowed. ❌\n\n❌ اللغة غير اللائقة غير مسموحة. ❌")
-            await update.message.delete()
-            return
-
-    # منع استدعاء البوت Genie أكثر من مرة
-    if "Genie" in update.message.text or "@AIChatGeniebot" in update.message.text:
-        user_id = update.message.from_user.id
-        if user_id in genie_users and str(user_id) != YOUR_ADMIN_ID:
-            await update.message.reply_text("❌ You can only call Genie once. ❌\n\n❌ يمكنك استدعاء Genie مرة واحدة فقط. ❌")
-            await update.message.delete()
-            return
-        genie_users.add(user_id)
-
-    if not context.user_data.get('q2'):
-        await update.message.reply_text("⚠️ Please start by pressing /start ⚠️\n\n⚠️ يرجى البدء بالضغط على /start ⚠️")
-        return
-
-    # التحقق من وجود الهدف
-    if not context.user_data.get('q3'):
-        # حفظ الهدف
-        context.user_data['q3'] = update.message.text
-        # الانتقال إلى السؤال التالي (اللغة)
-        await update.message.reply_text(" What is your native language? \n\n ما هي لغتك الأم؟ ")
-        context.user_data['q4'] = True
-    else:
-        # إذا كان الهدف موجودًا، فهذا يعني أن المستخدم يحاول إرسال اللغة
-        await handle_language(update, context)
 
 async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get('q4'):
