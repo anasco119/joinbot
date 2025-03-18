@@ -51,7 +51,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "start_questions":
         context.user_data['q2'] = True
-        await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟")
+        await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟/n What is your goal for joining the channel?")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.message.chat.id)
@@ -61,7 +61,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # التأكد من أن الرسائل تأتي من المجموعة المحددة
     if chat_id == GROUP_ID:
         # منع الروابط
-        if "http://" in message_text or "https://" in message_text or "www" in message_text or ".com" in message_text or ".net" in message_text or ".org" in message_text:
+        if "http://" in message_text or "https://" in message_text or "www." in message_text or ".com" in message_text or ".net" in message_text or ".org" in message_text:
             # إرسال رسالة التحليل
             analysis_msg = await update.message.reply_text("دعني أرى🤔 لاحظت شيئًا غريبًا هنا...\nI see something suspicious here...🤔\n\n🔍 جاري تحليل الرسالة...")
             await asyncio.sleep(4)  # تأخير لمحاكاة التحليل
@@ -71,7 +71,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # إرسال رسالة اكتشاف المخالفة
             violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!")
-            await asyncio.sleep(4)  # تأخير
+            await asyncio.sleep(2)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
             await asyncio.sleep(1)
@@ -146,23 +146,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             genie_users.add(user_id)
 
     elif chat_id != GROUP_ID:
-        # الرسائل الخاصة
-        if not context.user_data.get('q2'):
-            await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️")
-            return
-
-        if not context.user_data.get('q3'):
-            context.user_data['q3'] = message_text  # حفظ الهدف
-            context.user_data['q4'] = True
-            await update.message.reply_text("🌍 ما هي لغتك الأم؟")
-        else:
-            await handle_language(update, context)
-
-async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.user_data.get('q4'):
+    # الرسائل الخاصة
+    if not context.user_data.get('q2'):
+        await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️")
         return
 
-    context.user_data['lang'] = update.message.text
+    if not context.user_data.get('q3'):
+        context.user_data['q3'] = message_text  # حفظ الهدف
+        context.user_data['q4'] = True
+        await update.message.reply_text("🌍 ما هي لغتك الأم؟/n What is your mother language?")
+    elif not context.user_data.get('q5'):
+        context.user_data['lang'] = message_text  # حفظ اللغة
+        context.user_data['q5'] = True
+        await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟/n Will you abide by the channel rules? (نعم|yes/لا|no)")
+    elif not context.user_data.get('q6'):
+        context.user_data['rules_agreement'] = message_text  # حفظ الالتزام بالقواعد
+        context.user_data['q6'] = True
+        await update.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟/n Will you actively participate in the channel? (نعم|yes/لا|no)")
+    else:
+        context.user_data['positive_participation'] = message_text  # حفظ المشاركة الإيجابية
+        await handle_language(update, context)  # الانتقال إلى الخطوة التالية
+
+async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.user_data.get('q6'):
+        return
 
     # إرسال رسالة المعالجة
     processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
