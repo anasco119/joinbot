@@ -51,11 +51,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "start_questions":
         context.user_data['q2'] = True
-        await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
+        await query.message.reply_text(" ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
     elif query.data == "yes_rules":
         context.user_data['rules_agreement'] = "نعم | Yes"
         context.user_data['q6'] = True
-        await query.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        await query.message.reply_text(" هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
         # إضافة أزرار نعم/لا للمشاركة الإيجابية
         keyboard = [
             [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
@@ -66,7 +66,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "no_rules":
         context.user_data['rules_agreement'] = "لا | No"
         context.user_data['q6'] = True
-        await query.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        await query.message.reply_text(" هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
         # إضافة أزرار نعم/لا للمشاركة الإيجابية
         keyboard = [
             [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
@@ -76,10 +76,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("اختر:", reply_markup=reply_markup)
     elif query.data == "yes_participation":
         context.user_data['positive_participation'] = "نعم | Yes"
-        await handle_language(update, context)
+        await handle_language(query, context)  # تم التعديل هنا
     elif query.data == "no_participation":
         context.user_data['positive_participation'] = "لا | No"
-        await handle_language(update, context)
+        await handle_language(query, context)  # تم التعديل هنا
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.message.chat.id)
@@ -199,7 +199,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             # الانتظار حتى يتم الرد على السؤال الأخير بالأزرار
             return
-
 async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get('q6'):
         return
@@ -259,6 +258,7 @@ async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ حدث خطأ، يرجى المحاولة لاحقاً.\n⚠️ An error occurred, please try again later.")
 
     context.user_data.clear()
+
 
 async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass  # لم تتم إضافة آلية للترحيب بالأعضاء الجدد بعد
