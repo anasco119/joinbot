@@ -172,8 +172,8 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # إرسال رسالة المعالجة
-    processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...\n✅ Your answers have been received! Processing...")
-
+    processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
+    
     # إضافة تأثير النقاط المتحركة
     for _ in range(3):  # كرر العملية 3 مرات
         await asyncio.sleep(1)  # تأخير 1 ثانية
@@ -181,15 +181,11 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(1)
         await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها..")  # تعديل الرسالة
         await asyncio.sleep(1)
-        await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")  # تعديل الرسالة
-
+        await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها...") # تعديل الرسالة
+        await asyncio.sleep(1)  
+        await processing_msg.edit_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
+        await asyncio.sleep(3)
     # حذف رسالة المعالجة بعد الانتهاء
-    await processing_msg.delete()
-
-    # إرسال الرسالة التالية
-    await asyncio.sleep(1)
-    await update.message.reply_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...\n📝 Redirecting you to the channel; please wait...")
-    await asyncio.sleep(3)
     await processing_msg.delete()
     await asyncio.sleep(1)
     try:
