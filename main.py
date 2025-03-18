@@ -91,12 +91,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         # منع الكلمات المسيئة
-        for pattern in BAD_WORDS_PATTERNS:
-            if re.search(pattern, message_text, re.IGNORECASE):
-                # إرسال رسالة التحليل
-                analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة... يرجى الانتظار.")
-                await asyncio.sleep(4)  # تأخير لمحاكاة التحليل
-                await analysis_msg.delete()  # حذف رسالة التحليل
+        if re.search(pattern, message_text, re.IGNORECASE):
+    # إرسال رسالة التحليل
+    analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة...")
+
+    # إضافة تأثير النقاط المتحركة
+    for _ in range(3):  # كرر العملية 3 مرات
+        await asyncio.sleep(1)  # تأخير 1 ثانية
+        await analysis_msg.edit_text("🔍 جاري تحليل الرسالة.")  # تعديل الرسالة
+        await asyncio.sleep(1)
+        await analysis_msg.edit_text("🔍 جاري تحليل الرسالة..")  # تعديل الرسالة
+        await asyncio.sleep(1)
+        await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...")  # تعديل الرسالة
+
+    # حذف رسالة التحليل بعد الانتهاء
+    await analysis_msg.delete()
 
                 await asyncio.sleep(1)
 
@@ -153,7 +162,23 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     context.user_data['lang'] = update.message.text
-    await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
+
+# إرسال رسالة المعالجة
+processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
+
+# إضافة تأثير النقاط المتحركة
+for _ in range(3):  # كرر العملية 3 مرات
+    await asyncio.sleep(1)  # تأخير 1 ثانية
+    await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها.")  # تعديل الرسالة
+    await asyncio.sleep(1)
+    await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها..")  # تعديل الرسالة
+    await asyncio.sleep(1)
+    await processing_msg.edit_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")  # تعديل الرسالة
+
+# حذف رسالة المعالجة بعد الانتهاء
+await processing_msg.delete()
+
+# إرسال الرسالة التالية
     await asyncio.sleep(3)
     await update.message.reply_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
     await asyncio.sleep(3)
