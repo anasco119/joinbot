@@ -63,31 +63,27 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # منع الروابط
         if "http://" in message_text or "https://" in message_text or "www" in message_text or ".com" in message_text or ".net" in message_text or ".org" in message_text:
             # إرسال رسالة التحليل
-            analysis_msg = await update.message.reply_text("دعني أرى🤔 لاحظت شيئًا غريبًا هنا .../n
-                                                            I see something suspicious here...🤔/n
-                                                                                                /n
-                                                                              🔍جاري تحليل الرسالة..")
+            analysis_msg = await update.message.reply_text("دعني أرى🤔 لاحظت شيئًا غريبًا هنا...\nI see something suspicious here...🤔\n\n🔍 جاري تحليل الرسالة...")
             await asyncio.sleep(4)  # تأخير لمحاكاة التحليل
             await analysis_msg.delete()  # حذف رسالة التحليل
 
             await asyncio.sleep(1)
 
             # إرسال رسالة اكتشاف المخالفة
-            violation_msg = await update.message.reply_text(" تم اكتشاف رابط غير مسموح به")
+            violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!")
             await asyncio.sleep(4)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
             await asyncio.sleep(1)
-            
+
             # إرسال الرسالة النهائية مع الإجراء
             sender_name = update.message.from_user.full_name
             sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف"
             action_msg = await update.message.reply_text(
                 f"🚫 تم حذف الرسالة بسبب وجود رابط غير مسموح به.\n"
                 f"المخالف: {sender_name} ({sender_username})\n"
-                "يرجى تجنب نشر الروابط للمحافظة على جودة النقاش. 🤝/n
-                /n
-                 The message has been deleted, and the sender has been warned."
+                "يرجى تجنب نشر الروابط للمحافظة على جودة النقاش. 🤝\n\n"
+                "The message has been deleted, and the sender has been warned."
             )
             await update.message.delete()  # حذف الرسالة المخالفة
             await asyncio.sleep(10)  # تأخير 10 ثوانٍ
@@ -117,9 +113,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 action_msg = await update.message.reply_text(
                     f"🚫 تم حذف الرسالة بسبب استخدام لغة غير لائقة.\n"
                     f"المخالف: {sender_name} ({sender_username})\n"
-                    "يرجى استخدام لغة محترمة ومهذبة. 🌟/n
-                     /n
-                      Inappropriate language was detected in the message!"
+                    "يرجى استخدام لغة محترمة ومهذبة. 🌟\n\n"
+                    "Inappropriate language was detected in the message!"
                 )
                 await update.message.delete()  # حذف الرسالة المخالفة
                 await asyncio.sleep(10)  # تأخير 10 ثوانٍ
@@ -130,9 +125,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if re.search(r"@\w+", message_text) and user_id != YOUR_ADMIN_ID:
             await update.message.reply_text("🚫 لا يُسمح بذكر المعرفات الخارجية هنا. لنجعل النقاش متاحاً للجميع دون استثناء. 😊")
             await update.message.delete()
-            await asyncio.sleep(4)  # تأخير 10 ثوانٍ
-            await action_msg.delete()  # حذف الرسالة النهائية
-                return
             return
 
         # منع استدعاء البوت Genie أكثر من مرة
@@ -140,10 +132,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if user_id in genie_users and user_id != YOUR_ADMIN_ID:
                 await update.message.reply_text("🚫 يمكنك استدعاء Genie مرة واحدة فقط لتجنب الإزعاج. شكراً لتفهمك! 🙏")
                 await update.message.delete()
-                await asyncio.sleep(4)  # تأخير 10 ثوانٍ
-                await action_msg.delete()  # حذف الرسالة النهائية
                 return
-                
             genie_users.add(user_id)
 
     elif chat_id != GROUP_ID:
@@ -166,7 +155,7 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['lang'] = update.message.text
     await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
     await asyncio.sleep(3)
-    await update.message.reply_text("📝جاري توجيهك إلى القناة؛ الرجاء الإنتظار...")
+    await update.message.reply_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
     await asyncio.sleep(3)
     try:
         if CHANNEL_ID:
