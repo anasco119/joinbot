@@ -200,12 +200,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # الانتظار حتى يتم الرد على السؤال الأخير بالأزرار
             return
 
-async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get('q6'):
         return
 
     # إرسال رسالة المعالجة
-    processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
+    processing_msg = await query.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
 
     # إضافة تأثير النقاط المتحركة
     for _ in range(3):  # كرر العملية 3 مرات
@@ -222,20 +222,22 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # إرسال الرسالة التالية
     await asyncio.sleep(3)
-    await update.message.reply_text("⏳ بضع ثواني فقط ...\n⌛ Redirecting you; please be patient💤...")
+    await query.message.reply_text("⏳ بضع ثواني فقط ...\n⌛ Redirecting you; please be patient💤...")
     await asyncio.sleep(3)
     try:
         if CHANNEL_ID:
             try:
-                await context.bot.approve_chat_join_request(chat_id=CHANNEL_ID, user_id=update.message.from_user.id)
-                await update.message.reply_text("✅ تمت إضافتك للقناة بنجاح! 🎉\n✅ You have been successfully added to the channel! 🎉")
+                await context.bot.approve_chat_join_request(chat_id=CHANNEL_ID, user_id=query.from_user.id)
+                await query.message.reply_text("✅ تمت إضافتك للقناة بنجاح! 🎉\n✅ You have been successfully added to the channel! 🎉")
             except Exception as e:
                 print(f"Error adding user to channel: {e}")
                 invite_link = "https://t.me/EnglishConvs"
-                await update.message.reply_text(
+                await query.message.reply_text(
                     f"🔗 يرجى الانضمام للقناة من خلال الرابط التالي:\n{invite_link}\n\nنرحب بك! 😊\n"
                     f"🔗 Please join the channel using the following link:\n{invite_link}\n\nWelcome! 😊"
                 )
+    except Exception as e:
+        print(f"Error in handle_language: {e}")
 
         # إرسال جميع الإجابات إلى الأدمن
         if YOUR_ADMIN_ID:
