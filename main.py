@@ -41,7 +41,7 @@ BAD_WORDS_PATTERNS = [
 genie_users = set()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton("ابدأ الآن", callback_data="start_questions")]]
+    keyboard = [[InlineKeyboardButton("ابدأ الآن | Start Now", callback_data="start_questions")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(WELCOME_MESSAGE_TEXT, reply_markup=reply_markup)
 
@@ -51,7 +51,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "start_questions":
         context.user_data['q2'] = True
-        await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟/n What is your goal for joining the channel?")
+        await query.message.reply_text("🎯 ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.message.chat.id)
@@ -70,7 +70,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await asyncio.sleep(1)
 
             # إرسال رسالة اكتشاف المخالفة
-            violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!")
+            violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
             await asyncio.sleep(2)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -78,7 +78,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # إرسال الرسالة النهائية مع الإجراء
             sender_name = update.message.from_user.full_name
-            sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف"
+            sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
             action_msg = await update.message.reply_text(
                 f"🚫 تم حذف الرسالة بسبب وجود رابط غير مسموح به.\n"
                 f"المخالف: {sender_name} ({sender_username})\n"
@@ -94,16 +94,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for pattern in BAD_WORDS_PATTERNS:
             if re.search(pattern, message_text, re.IGNORECASE):
                 # إرسال رسالة التحليل
-                analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة...")
+                analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")
 
                 # إضافة تأثير النقاط المتحركة
                 for _ in range(3):  # كرر العملية 3 مرات
                     await asyncio.sleep(1)  # تأخير 1 ثانية
-                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة.")  # تعديل الرسالة
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة.\nAnalyzing the message.")  # تعديل الرسالة
                     await asyncio.sleep(1)
-                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة..")  # تعديل الرسالة
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة..\nAnalyzing the message..")  # تعديل الرسالة
                     await asyncio.sleep(1)
-                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...")  # تعديل الرسالة
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")  # تعديل الرسالة
 
                 # حذف رسالة التحليل بعد الانتهاء
                 await analysis_msg.delete()
@@ -111,7 +111,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(1)
 
                 # إرسال رسالة اكتشاف المخالفة
-                violation_msg = await update.message.reply_text("⚠️ تم اكتشاف لغة غير لائقة!")
+                violation_msg = await update.message.reply_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(2)  # تأخير
                 await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -119,7 +119,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 # إرسال الرسالة النهائية مع الإجراء
                 sender_name = update.message.from_user.full_name
-                sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف"
+                sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
                 action_msg = await update.message.reply_text(
                     f"🚫 تم حذف الرسالة بسبب استخدام لغة غير لائقة.\n"
                     f"المخالف: {sender_name} ({sender_username})\n"
@@ -133,46 +133,46 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # منع ذكر المعرفات الخارجية
         if re.search(r"@\w+", message_text) and user_id != YOUR_ADMIN_ID:
-            await update.message.reply_text("🚫 لا يُسمح بذكر المعرفات الخارجية هنا. لنجعل النقاش متاحاً للجميع دون استثناء. 😊")
+            await update.message.reply_text("🚫 لا يُسمح بذكر المعرفات الخارجية هنا. لنجعل النقاش متاحاً للجميع دون استثناء. 😊\nMentioning external usernames is not allowed here.")
             await update.message.delete()
             return
 
         # منع استدعاء البوت Genie أكثر من مرة
         if "Genie" in message_text or "@AIChatGeniebot" in message_text:
             if user_id in genie_users and user_id != YOUR_ADMIN_ID:
-                await update.message.reply_text("🚫 يمكنك استدعاء Genie مرة واحدة فقط لتجنب الإزعاج. شكراً لتفهمك! 🙏")
+                await update.message.reply_text("🚫 يمكنك استدعاء Genie مرة واحدة فقط لتجنب الإزعاج. شكراً لتفهمك! 🙏\nYou can only call Genie once to avoid spamming. Thank you for understanding!")
                 await update.message.delete()
                 return
             genie_users.add(user_id)
 
     elif chat_id != GROUP_ID:
-    # الرسائل الخاصة
-    if not context.user_data.get('q2'):
-        await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️")
-        return
+        # الرسائل الخاصة
+        if not context.user_data.get('q2'):
+            await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️\nPlease press /start to follow the instructions.")
+            return
 
-    if not context.user_data.get('q3'):
-        context.user_data['q3'] = message_text  # حفظ الهدف
-        context.user_data['q4'] = True
-        await update.message.reply_text("🌍 ما هي لغتك الأم؟/n What is your mother language?")
-    elif not context.user_data.get('q5'):
-        context.user_data['lang'] = message_text  # حفظ اللغة
-        context.user_data['q5'] = True
-        await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟/n Will you abide by the channel rules? (نعم|yes/لا|no)")
-    elif not context.user_data.get('q6'):
-        context.user_data['rules_agreement'] = message_text  # حفظ الالتزام بالقواعد
-        context.user_data['q6'] = True
-        await update.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟/n Will you actively participate in the channel? (نعم|yes/لا|no)")
-    else:
-        context.user_data['positive_participation'] = message_text  # حفظ المشاركة الإيجابية
-        await handle_language(update, context)  # الانتقال إلى الخطوة التالية
+        if not context.user_data.get('q3'):
+            context.user_data['q3'] = message_text  # حفظ الهدف
+            context.user_data['q4'] = True
+            await update.message.reply_text("🌍 ما هي لغتك الأم؟\nWhat is your mother language?")
+        elif not context.user_data.get('q5'):
+            context.user_data['lang'] = message_text  # حفظ اللغة
+            context.user_data['q5'] = True
+            await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules? (نعم|yes/لا|no)")
+        elif not context.user_data.get('q6'):
+            context.user_data['rules_agreement'] = message_text  # حفظ الالتزام بالقواعد
+            context.user_data['q6'] = True
+            await update.message.reply_text("🌟 هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel? (نعم|yes/لا|no)")
+        else:
+            context.user_data['positive_participation'] = message_text  # حفظ المشاركة الإيجابية
+            await handle_language(update, context)  # الانتقال إلى الخطوة التالية
 
 async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get('q6'):
         return
 
     # إرسال رسالة المعالجة
-    processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
+    processing_msg = await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...\n✅ Your answers have been received! Processing...")
 
     # إضافة تأثير النقاط المتحركة
     for _ in range(3):  # كرر العملية 3 مرات
@@ -187,22 +187,25 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await processing_msg.delete()
 
     # إرسال الرسالة التالية
+    await asyncio.sleep(1)
+    await update.message.reply_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...\n📝 Redirecting you to the channel; please wait...")
     await asyncio.sleep(3)
-    await update.message.reply_text("📝 جاري توجيهك إلى القناة؛ الرجاء الانتظار...")
-    await asyncio.sleep(3)
+    await processing_msg.delete()
+    await asyncio.sleep(1)
     try:
         if CHANNEL_ID:
             try:
                 await context.bot.approve_chat_join_request(chat_id=CHANNEL_ID, user_id=update.message.from_user.id)
-                await update.message.reply_text("✅ تمت إضافتك للقناة بنجاح! 🎉")
+                await update.message.reply_text("✅ تمت إضافتك للقناة بنجاح! 🎉\n✅ You have been successfully added to the channel! 🎉")
             except Exception as e:
                 print(f"Error adding user to channel: {e}")
                 invite_link = "https://t.me/EnglishConvs"
                 await update.message.reply_text(
-                    f"🔗 يرجى الانضمام للقناة من خلال الرابط التالي:\n{invite_link}\n\nنرحب بك! 😊"
+                    f"🔗 يرجى الانضمام للقناة من خلال الرابط التالي:\n{invite_link}\n\nنرحب بك! 😊\n"
+                    f"🔗 Please join the channel using the following link:\n{invite_link}\n\nWelcome! 😊"
                 )
 
-                # إرسال جميع الإجابات إلى الأدمن
+        # إرسال جميع الإجابات إلى الأدمن
         if YOUR_ADMIN_ID:
             await context.bot.send_message(
                 chat_id=YOUR_ADMIN_ID,
@@ -214,12 +217,12 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"الهدف: {context.user_data['q3']}\n"
                     f"اللغة: {context.user_data['lang']}\n"
                     f"هل يلتزم بالقواعد؟: {context.user_data['rules_agreement']}\n"
-                    f"هل سيشارك مشاركة إيجابية؟: {context.user_data['positive_participation']}    
+                    f"هل سيشارك مشاركة إيجابية؟: {context.user_data['positive_participation']}"
                 )
             )
     except Exception as e:
         print(f"Error: {e}")
-        await update.message.reply_text("⚠️ حدث خطأ، يرجى المحاولة لاحقاً.")
+        await update.message.reply_text("⚠️ حدث خطأ، يرجى المحاولة لاحقاً.\n⚠️ An error occurred, please try again later.")
 
     context.user_data.clear()
 
