@@ -173,7 +173,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             genie_users.add(user_id)
 
-        elif chat_id != GROUP_ID:
+    elif chat_id != GROUP_ID:
         # الرسائل الخاصة
         if not context.user_data.get('q2'):
             await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️\nPlease press /start to follow the instructions.")
