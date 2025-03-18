@@ -165,7 +165,9 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     context.user_data['lang'] = update.message.text
     await update.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
-
+    await asyncio.sleep(3)
+    await update.message.reply_text("📝جاري توجيهك إلى القناة؛ الرجاء الإنتظار...")
+    await asyncio.sleep(3)
     try:
         if CHANNEL_ID:
             try:
