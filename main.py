@@ -214,7 +214,7 @@ async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
         elif not context.user_data.get('q6'):
             # هنا يتم الانتظار حتى يتم الرد على الأزرار
             return
-            سالة المعالجة
+            # رسالة المعالجة
     processing_msg = await query.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
 
     # إضافة تأثير النقاط المتحركة
