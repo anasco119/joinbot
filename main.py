@@ -110,13 +110,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # إرسال الرسالة النهائية مع الإجراء
             sender_name = update.message.from_user.full_name
             sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
-            action_msg = analysis_msg.reply_text(
+            action_msg = analysis_msg.edit_text(
                 f"🚫 تم حذف الرسالة بسبب وجود رابط غير مسموح به.\n"
                 f"المخالف: {sender_name} ({sender_username})\n"
                 "يرجى تجنب نشر الروابط للمحافظة على جودة النقاش. 🤝\n\n"
                 "The message has been deleted, and the sender has been warned."
             )
             await update.message.delete()  # حذف الرسالة المخالفة
+            await analysis_msg.delete()
             await asyncio.sleep(10)  # تأخير 10 ثوانٍ
             await action_msg.delete()  # حذف الرسالة النهائية
             return
@@ -143,6 +144,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await analysis_msg.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(2)  # تأخير
                 await update.message.delete()  # حذف رسالة المخالفة
+               
 
                 await asyncio.sleep(1)
 
@@ -155,6 +157,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "يرجى استخدام لغة محترمة ومهذبة. 🌟\n\n"
                     "Inappropriate language was detected in the message!"
                 )
+                await analysis_msg.delete()
                 await asyncio.sleep(10)  # تأخير 10 ثوانٍ
                 await action_msg.delete()  # حذف الرسالة النهائية
                 return
