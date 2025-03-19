@@ -277,7 +277,7 @@ def main():
         listen="0.0.0.0",
         port=PORT,
         url_path=TOKEN,
-        webhook_url=f"https://joinbot-7mw7.onrender.com/{TOKEN}"
+        webhook_url=f"https://joinbot-jph7.onrender.com/{TOKEN}"
     )
 
 if __name__ == "__main__":
