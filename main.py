@@ -55,11 +55,27 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "yes_rules":
         context.user_data['rules_agreement'] = "نعم | Yes"
         context.user_data['step'] = 4  # الانتقال إلى السؤال التالي
-        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        
+        # إرسال السؤال مع الأزرار
+        keyboard = [
+            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
+        
     elif query.data == "no_rules":
         context.user_data['rules_agreement'] = "لا | No"
         context.user_data['step'] = 4  # الانتقال إلى السؤال التالي
-        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?")
+        
+        # إرسال السؤال مع الأزرار
+        keyboard = [
+            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
+        
     elif query.data == "yes_participation":
         context.user_data['positive_participation'] = "نعم | Yes"
         await handle_language(query, context)
