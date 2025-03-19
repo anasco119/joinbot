@@ -51,7 +51,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if query.data == "start_questions":
         context.user_data['step'] = 1  # بدء الأسئلة
-        await query.message.reply_text("ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
+        await query.message.edit_text("ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
     elif query.data == "yes_rules":
         context.user_data['rules_agreement'] = "نعم | Yes"
         context.user_data['step'] = 4  # الانتقال إلى السؤال التالي
@@ -62,7 +62,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("لا | No", callback_data="no_participation")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
+        await query.message.edit_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
         
     elif query.data == "no_rules":
         context.user_data['rules_agreement'] = "لا | No"
@@ -74,7 +74,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("لا | No", callback_data="no_participation")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.message.reply_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
+        await query.message.edit_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
         
     elif query.data == "yes_participation":
         context.user_data['positive_participation'] = "نعم | Yes"
@@ -90,29 +90,87 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # التأكد من أن الرسائل تأتي من المجموعة المحددة
     if chat_id == GROUP_ID:
-        # منع الروابط
+       # منع الروابط
         if "http://" in message_text or "https://" in message_text or "www." in message_text or ".com" in message_text or ".net" in message_text or ".org" in message_text:
-            await update.message.reply_text("🚫 لا يُسمح بنشر الروابط هنا.\nLinks are not allowed here.")
-            await update.message.delete()
+            # إرسال رسالة التحليل
+            analysis_msg = await update.message.reply_text("دعني أرى🤔 لاحظت شيئًا غريبًا هنا...\nI see something suspicious here...🤔\n\n🔍 جاري تحليل الرسالة...")
+            await asyncio.sleep(4)  # تأخير لمحاكاة التحليل
+            await analysis_msg.delete()  # حذف رسالة التحليل
+
+            await asyncio.sleep(1)
+
+            # إرسال رسالة اكتشاف المخالفة
+            violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
+            await asyncio.sleep(2)  # تأخير
+            await violation_msg.delete()  # حذف رسالة المخالفة
+
+            await asyncio.sleep(1)
+
+            # إرسال الرسالة النهائية مع الإجراء
+            sender_name = update.message.from_user.full_name
+            sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
+            action_msg = await update.message.reply_text(
+                f"🚫 تم حذف الرسالة بسبب وجود رابط غير مسموح به.\n"
+                f"المخالف: {sender_name} ({sender_username})\n"
+                "يرجى تجنب نشر الروابط للمحافظة على جودة النقاش. 🤝\n\n"
+                "The message has been deleted, and the sender has been warned."
+            )
+            await update.message.delete()  # حذف الرسالة المخالفة
+            await asyncio.sleep(10)  # تأخير 10 ثوانٍ
+            await action_msg.delete()  # حذف الرسالة النهائية
             return
 
         # منع الكلمات المسيئة
         for pattern in BAD_WORDS_PATTERNS:
             if re.search(pattern, message_text, re.IGNORECASE):
-                await update.message.reply_text("🚫 تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
-                await update.message.delete()
+                # إرسال رسالة التحليل
+                analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")
+
+                # إضافة تأثير النقاط المتحركة
+                for _ in range(3):  # كرر العملية 3 مرات
+                    await asyncio.sleep(1)  # تأخير 1 ثانية
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة.\nAnalyzing the message.")  # تعديل الرسالة
+                    await asyncio.sleep(1)
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة..\nAnalyzing the message..")  # تعديل الرسالة
+                    await asyncio.sleep(1)
+                    await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")  # تعديل الرسالة
+
+                # حذف رسالة التحليل بعد الانتهاء
+                await analysis_msg.delete()
+
+                await asyncio.sleep(1)
+
+                # إرسال رسالة اكتشاف المخالفة
+                violation_msg = await update.message.reply_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
+                await asyncio.sleep(2)  # تأخير
+                await violation_msg.delete()  # حذف رسالة المخالفة
+
+                await asyncio.sleep(1)
+
+                # إرسال الرسالة النهائية مع الإجراء
+                sender_name = update.message.from_user.full_name
+                sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
+                action_msg = await update.message.reply_text(
+                    f"🚫 تم حذف الرسالة بسبب استخدام لغة غير لائقة.\n"
+                    f"المخالف: {sender_name} ({sender_username})\n"
+                    "يرجى استخدام لغة محترمة ومهذبة. 🌟\n\n"
+                    "Inappropriate language was detected in the message!"
+                )
+                await update.message.delete()  # حذف الرسالة المخالفة
+                await asyncio.sleep(10)  # تأخير 10 ثوانٍ
+                await action_msg.delete()  # حذف الرسالة النهائية
                 return
 
         # منع ذكر المعرفات الخارجية
         if re.search(r"@\w+", message_text) and user_id != YOUR_ADMIN_ID:
-            await update.message.reply_text("🚫 لا يُسمح بذكر المعرفات الخارجية هنا.\nMentioning external usernames is not allowed here.")
+            await update.message.reply_text("🚫 لا يُسمح بذكر المعرفات الخارجية هنا. لنجعل النقاش متاحاً للجميع دون استثناء. 😊\nMentioning external usernames is not allowed here.")
             await update.message.delete()
             return
 
         # منع استدعاء البوت Genie أكثر من مرة
         if "Genie" in message_text or "@AIChatGeniebot" in message_text:
             if user_id in genie_users and user_id != YOUR_ADMIN_ID:
-                await update.message.reply_text("🚫 يمكنك استدعاء Genie مرة واحدة فقط.\nYou can only call Genie once.")
+                await update.message.reply_text("🚫 يمكنك استدعاء Genie مرة واحدة فقط لتجنب الإزعاج. شكراً لتفهمك! 🙏\nYou can only call Genie once to avoid spamming. Thank you for understanding!")
                 await update.message.delete()
                 return
             genie_users.add(user_id)
