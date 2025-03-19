@@ -282,20 +282,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-    async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    # ... بقية الكود ...
-
-    elif query.data == "yes_participation":
-        context.user_data['positive_participation'] = "نعم | Yes"
-        await handle_language(query, context)
-        return  # تم إضافة return هنا
-    elif query.data == "no_participation":
-        context.user_data['positive_participation'] = "لا | No"
-        await handle_language(query, context)
-        return  # تم إضافة return هنا
