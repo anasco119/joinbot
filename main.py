@@ -132,8 +132,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await asyncio.sleep(1)
                     await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")  # تعديل الرسالة
 
-                # حذف رسالة التحليل بعد الانتهاء
-                await analysis_msg.delete()
 
                 await asyncio.sleep(1)
 
