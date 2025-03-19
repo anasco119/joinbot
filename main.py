@@ -97,7 +97,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await asyncio.sleep(6)  # تأخير لمحاكاة التحليل
 
             # إرسال رسالة اكتشاف المخالفة
-            second_msg = await edit.message.edit_text("**spammer!**/n⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
+            await analysis_msg.edit_text("**spammer!**/n⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
             await asyncio.sleep(2)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -136,7 +136,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(1)
 
                 # إرسال رسالة اكتشاف المخالفة
-                second_msg = await update.message.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
+                await analysis_msg.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(2)  # تأخير
                 await violation_msg.delete()  # حذف رسالة المخالفة
 
