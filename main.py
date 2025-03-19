@@ -17,7 +17,6 @@ TOKEN = os.environ.get('BOT_TOKEN')
 YOUR_ADMIN_ID = int(os.environ.get('YOUR_ADMIN_ID'))
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 GROUP_ID = os.environ.get('GROUP_ID')
-PORT = os.environ.get('PORT')
 
 WELCOME_MESSAGE_TEXT = (
     "✨ **مرحباً بك في قناتنا!** ✨\n\n"
