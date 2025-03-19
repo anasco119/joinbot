@@ -174,7 +174,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
             genie_users.add(user_id)
 
-    elif chat_id != GROUP_ID:
+    
+async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.user_data.get('q6'):
+        return
+
+    # إرسال رasync def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message_text = update.message.text
+    chat_id = update.message.chat_id
+
+    if chat_id != GROUP_ID:
         # الرسائل الخاصة
         if not context.user_data.get('q2'):
             await update.message.reply_text("⚠️ يرجى البدء بالضغط على /start لاتباع الإرشادات. ⚠️\nPlease press /start to follow the instructions.")
@@ -184,27 +193,28 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data['q3'] = message_text  # حفظ الهدف
             context.user_data['q4'] = True
             await update.message.reply_text("🌍 ما هي لغتك الأم؟\nWhat is your mother language?")
+        
         elif not context.user_data.get('q5'):
             context.user_data['lang'] = message_text  # حفظ اللغة
             context.user_data['q5'] = True
+            
             # إضافة أزرار نعم/لا للالتزام بالقواعد
             keyboard = [
                 [InlineKeyboardButton("نعم | Yes", callback_data="yes_rules")],
                 [InlineKeyboardButton("لا | No", callback_data="no_rules")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules?", reply_markup=reply_markup)
+            
+            # إرسال الرسالة مع الأزرار
+            await update.message.reply_text(
+                "📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules?", 
+                reply_markup=reply_markup
+            )
+        
         elif not context.user_data.get('q6'):
-            # الانتظار حتى يتم الرد على السؤال السابق بالأزرار
+            # هنا يتم الانتظار حتى يتم الرد على الأزرار
             return
-        else:
-            # الانتظار حتى يتم الرد على السؤال الأخير بالأزرار
-            return
-async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.user_data.get('q6'):
-        return
-
-    # إرسال رسالة المعالجة
+            سالة المعالجة
     processing_msg = await query.message.reply_text("✅ تم استلام إجاباتك! جارٍ معالجتها...")
 
     # إضافة تأثير النقاط المتحركة
