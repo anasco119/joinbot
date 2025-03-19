@@ -48,7 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
+    
     if query.data == "start_questions":
         context.user_data['q2'] = True
         await query.message.reply_text(" ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
@@ -76,11 +76,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("اختر:", reply_markup=reply_markup)
     elif query.data == "yes_participation":
         context.user_data['positive_participation'] = "نعم | Yes"
-        await handle_language(query, context)  # تم التعديل هنا
+        await handle_language(query, context)
+        return  # تم إضافة return هنا
     elif query.data == "no_participation":
         context.user_data['positive_participation'] = "لا | No"
-        await handle_language(query, context)  # تم التعديل هنا
-
+        await handle_language(query, context)
+        return  # تم إضافة return هنا
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.message.chat.id)
     user_id = update.message.from_user.id
@@ -281,3 +282,20 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+    async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    # ... بقية الكود ...
+
+    elif query.data == "yes_participation":
+        context.user_data['positive_participation'] = "نعم | Yes"
+        await handle_language(query, context)
+        return  # تم إضافة return هنا
+    elif query.data == "no_participation":
+        context.user_data['positive_participation'] = "لا | No"
+        await handle_language(query, context)
+        return  # تم إضافة return هنا
