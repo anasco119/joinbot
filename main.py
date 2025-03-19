@@ -93,14 +93,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
        # منع الروابط
         if "http://" in message_text or "https://" in message_text or "www." in message_text or ".com" in message_text or ".net" in message_text or ".org" in message_text:
             # إرسال رسالة التحليل
-            analysis_msg = await update.message.reply_text("دعني أرى🤔 لاحظت شيئًا غريبًا هنا...\nI see something suspicious here...🤔\n\n🔍 جاري تحليل الرسالة...")
-            await asyncio.sleep(4)  # تأخير لمحاكاة التحليل
-            await analysis_msg.delete()  # حذف رسالة التحليل
-
-            await asyncio.sleep(1)
+            analysis_msg = await update.message.reply_text("لاحظت شيئًا غريبًا هنا. دعني ارى 🤔...\nI see something suspicious here...🤔\n\n🔍 جاري تحليل الرسالة...")
+            await asyncio.sleep(6)  # تأخير لمحاكاة التحليل
 
             # إرسال رسالة اكتشاف المخالفة
-            violation_msg = await update.message.reply_text("⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
+            violation_msg = await edit.message.edit_text("**spammer!**/n⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
             await asyncio.sleep(2)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -141,7 +138,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(1)
 
                 # إرسال رسالة اكتشاف المخالفة
-                violation_msg = await update.message.reply_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
+                violation_msg = await update.message.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(2)  # تأخير
                 await violation_msg.delete()  # حذف رسالة المخالفة
 
