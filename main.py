@@ -53,34 +53,34 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['step'] = 1  # بدء الأسئلة
         await query.message.edit_text("ما هو هدفك من الانضمام إلى هذه القناة؟\nWhat is your goal for joining the channel?")
     elif query.data == "yes_rules":
-        context.user_data['rules_agreement'] = "نعم | Yes"
+        context.user_data['rules_agreement'] = "نعم|Yes"
         context.user_data['step'] = 4  # الانتقال إلى السؤال التالي
         
         # إرسال السؤال مع الأزرار
         keyboard = [
-            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
-            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+            [InlineKeyboardButton("نعم|Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا|No", callback_data="no_participation")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.message.edit_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
         
     elif query.data == "no_rules":
-        context.user_data['rules_agreement'] = "لا | No"
+        context.user_data['rules_agreement'] = "لا|No"
         context.user_data['step'] = 4  # الانتقال إلى السؤال التالي
         
         # إرسال السؤال مع الأزرار
         keyboard = [
-            [InlineKeyboardButton("نعم | Yes", callback_data="yes_participation")],
-            [InlineKeyboardButton("لا | No", callback_data="no_participation")]
+            [InlineKeyboardButton("نعم|Yes", callback_data="yes_participation")],
+            [InlineKeyboardButton("لا|No", callback_data="no_participation")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.message.edit_text("هل ستشارك مشاركة إيجابية في القناة؟\nWill you actively participate in the channel?", reply_markup=reply_markup)
         
     elif query.data == "yes_participation":
-        context.user_data['positive_participation'] = "نعم | Yes"
+        context.user_data['positive_participation'] = "نعم|Yes"
         await handle_language(query, context)
     elif query.data == "no_participation":
-        context.user_data['positive_participation'] = "لا | No"
+        context.user_data['positive_participation'] = "لا|No"
         await handle_language(query, context)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -97,7 +97,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await asyncio.sleep(6)  # تأخير لمحاكاة التحليل
 
             # إرسال رسالة اكتشاف المخالفة
-            violation_msg = await edit.message.edit_text("**spammer!**/n⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
+            analysis_msg = await edit.message.edit_text("**spammer!**/n⚠️ تم اكتشاف رابط غير مسموح به!\nA forbidden link was detected!")
             await asyncio.sleep(2)  # تأخير
             await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -136,7 +136,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(1)
 
                 # إرسال رسالة اكتشاف المخالفة
-                violation_msg = await update.message.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
+                analysis_msg = await update.message.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(2)  # تأخير
                 await violation_msg.delete()  # حذف رسالة المخالفة
 
@@ -186,8 +186,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data['language'] = message_text
             context.user_data['step'] = 3
             keyboard = [
-                [InlineKeyboardButton("نعم | Yes", callback_data="yes_rules")],
-                [InlineKeyboardButton("لا | No", callback_data="no_rules")]
+                [InlineKeyboardButton("نعم|Yes", callback_data="yes_rules")],
+                [InlineKeyboardButton("لا|No", callback_data="no_rules")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             await update.message.reply_text("📜 هل ستلتزم بقواعد القناة؟\nWill you abide by the channel rules?", reply_markup=reply_markup)
