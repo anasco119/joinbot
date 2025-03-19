@@ -98,12 +98,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # إرسال رسالة اكتشاف المخالفة
             await analysis_msg.edit_text(
-        "**spammer!**\n"
+        "/spammer!\n\n"
         "⚠️ تم اكتشاف رابط غير مسموح به!\n"
-        "A forbidden link was detected!"
+        "A forbidden link was detected!\n\n"
+        "procedure..."
     )
             await asyncio.sleep(1)  # تأخير
-            
+            await analysis_msg.delete()
 
             # إرسال الرسالة النهائية مع الإجراء
             sender_name = update.message.from_user.full_name
@@ -115,7 +116,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "The message has been deleted, and the sender has been warned."
             )
             await update.message.delete()  # حذف الرسالة المخالفة
-            await analysis_msg.delete()
             await asyncio.sleep(10)  # تأخير 10 ثوانٍ
             await action_msg.delete()  # حذف الرسالة النهائية
             return
@@ -126,24 +126,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # إرسال رسالة التحليل
                 analysis_msg = await update.message.reply_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")
 
-                # إضافة تأثير النقاط المتحركة
-                await analysis_msg.edit_text("🔍 جاري تحليل الرسالة...\nAnalyzing the message...")  # تعديل الرسالة
-                await asyncio.sleep(4)
-
+                await asyncio.sleep(3)
+                
                 # إرسال رسالة اكتشاف المخالفة
                 await analysis_msg.edit_text("⚠️ تم اكتشاف لغة غير لائقة!\nInappropriate language was detected!")
                 await asyncio.sleep(1)  # تأخير
+                await analysis_msg.delete()
 
                 # إرسال الرسالة النهائية مع الإجراء
                 sender_name = update.message.from_user.full_name
                 sender_username = f"@{update.message.from_user.username}" if update.message.from_user.username else "بدون معرف | No Username"
-                action_msg = update.message.reply_text(
+                action_msg = await update.message.reply_text(
                     f"🚫 تم حذف الرسالة بسبب استخدام لغة غير لائقة.\n"
                     f"المخالف: {sender_name} ({sender_username})\n"
                     "يرجى استخدام لغة محترمة ومهذبة. 🌟\n\n"
                     "Inappropriate language was detected in the message!"
                 )
-                await analysis_msg.delete()
                 await update.message.delete()  # حذف رسالة المخالفة
                 await asyncio.sleep(10)  # تأخير 10 ثوانٍ
                 await action_msg.delete()  # حذف الرسالة النهائية
