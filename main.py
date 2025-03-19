@@ -17,6 +17,7 @@ TOKEN = os.environ.get('BOT_TOKEN')
 YOUR_ADMIN_ID = int(os.environ.get('YOUR_ADMIN_ID'))
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 GROUP_ID = os.environ.get('GROUP_ID')
+PORT = os.environ.get('PORT')
 
 WELCOME_MESSAGE_TEXT = (
     "✨ **مرحباً بك في قناتنا!** ✨\n\n"
@@ -73,7 +74,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("لا | No", callback_data="no_participation")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.message.reply_text("اختر:", reply_markup=reply_markup)
     elif query.data == "yes_participation":
         context.user_data['positive_participation'] = "نعم | Yes"
         await handle_language(query, context)
