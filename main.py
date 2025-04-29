@@ -11,6 +11,8 @@ from telegram.ext import (
     filters,
     ChatMemberHandler,
 )
+import threading 
+from flask import Flask, request, jsonify
 
 # تهيئة المتغيرات من البيئة
 TOKEN = os.environ.get('BOT_TOKEN')
@@ -18,6 +20,14 @@ YOUR_ADMIN_ID = int(os.environ.get('YOUR_ADMIN_ID'))
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 GROUP_ID = os.environ.get('GROUP_ID')
 
+
+app_flask = Flask(__name__)
+
+# نقطة نهاية أساسية للتحقق من عمل الخادم
+@app_flask.route('/')
+def home():
+    return "✅ البوت يعمل بشكل صحيح!", 200
+    
 WELCOME_MESSAGE_TEXT = (
     "✨ **مرحباً بك في قناتنا!** ✨\n\n"
     "للانضمام إلى القناة، يرجى الإجابة على بعض الأسئلة.\n"
@@ -238,21 +248,22 @@ async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
 async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass  # لم تتم إضافة آلية للترحيب بالأعضاء الجدد بعد
 
-def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
 
-    print("Bot is running...")
-    PORT = int(os.environ.get("PORT", 8080))
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url=f"https://joinbot-jph7.onrender.com/{TOKEN}"
-    )
+    
+PORT = int(os.environ.get("PORT", 10000))  # اجعل PORT متاحًا عالميًا
 
-if __name__ == "__main__":
+def run_flask():
+    app_flask.run(host="0.0.0.0", port=PORT)
+
+def main():
+    threading.Thread(target=run_flask).start()
+    logging.info("✅ تشغيل البوت بـ polling...")
+    app.run_polling()
+
+if __name__ == '__main__':
     main()
