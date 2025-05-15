@@ -262,6 +262,7 @@ def run_flask():
     app_flask.run(host="0.0.0.0", port=PORT)
 
 def main():
+    app = Application.builder().token(TOKEN).build()
     threading.Thread(target=run_flask).start()
     logging.info("✅ تشغيل البوت بـ polling...")
     app.run_polling()
