@@ -13,6 +13,7 @@ from telegram.ext import (
 )
 import threading 
 from flask import Flask, request, jsonify
+import logging
 
 # تهيئة المتغيرات من البيئة
 TOKEN = os.environ.get('BOT_TOKEN')
