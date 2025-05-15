@@ -255,7 +255,7 @@ def run_flask():
     app_flask.run(host="0.0.0.0", port=PORT)
 
 def main():
-    app = Application.builder().token(TOKEN).drop_pending_updates(True).build()
+    app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
