@@ -248,13 +248,6 @@ async def handle_language(query: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pass  # لم تتم إضافة آلية للترحيب بالأعضاء الجدد بعد
-
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
-
     
 PORT = int(os.environ.get("PORT", 10000))  # اجعل PORT متاحًا عالميًا
 
@@ -263,6 +256,11 @@ def run_flask():
 
 def main():
     app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(ChatMemberHandler(welcome_new_member, ChatMemberHandler.CHAT_MEMBER))
+
     threading.Thread(target=run_flask).start()
     logging.info("✅ تشغيل البوت بـ polling...")
     app.run_polling()
